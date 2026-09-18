@@ -1,0 +1,86 @@
+<!doctype html>
+<!--
+  Ticket #10 — UI shell. Deliberately minimal and functional (the buildmap says do NOT
+  gold-plate the UI before the verifier exists). The Best-UI pass — accessible, high
+  contrast, the polished citation chips — is a later FRONT ticket that uses the
+  frontend-design skill. This shell just proves the loop and shows tiered chips.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Claim-Appeal Agent — scaffold</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1 { font-size: 1.25rem; }
+    button { font-size: 1rem; padding: .5rem 1rem; cursor: pointer; }
+    .claim { border-left: 4px solid #ccc; padding: .4rem .8rem; margin: .5rem 0; }
+    .A { border-color: #1d9e75; }        /* rule/precedent-backed + grounded */
+    .B { border-color: #ba7517; }        /* documented */
+    .C { border-color: #888; }
+    .STRIP { border-color: #e24b4a; opacity: .55; text-decoration: line-through; }
+    .chip { display: inline-block; font-size: .8rem; color: #555; margin-top: .2rem; }
+    .lead { background: #e1f5ee; padding: .6rem .8rem; border-radius: 8px; }
+    pre { white-space: pre-wrap; background: #00000010; padding: 1rem; border-radius: 8px; }
+    .muted { color: #777; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <h1>Claim-Appeal Agent <span class="muted">— walking-skeleton scaffold</span></h1>
+  <p class="muted">Sample case: PED denial after 40 months of continuous cover. The draft
+    contains one planted fabrication; watch the verifier strip it.</p>
+  <button id="run">Run sample appeal</button>
+
+  <div id="out" hidden>
+    <h2>Claims</h2>
+    <div id="claims"></div>
+    <h2>Lead argument</h2>
+    <div id="lead" class="lead"></div>
+    <h2>Final GRO letter</h2>
+    <pre id="letter"></pre>
+    <p class="muted" id="summary"></p>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    $("run").addEventListener("click", async () => {
+      $("run").disabled = true;
+      $("run").textContent = "Running…";
+      try {
+        const res = await fetch("/appeal", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        const data = await res.json();
+        render(data);
+      } catch (e) {
+        alert("Request failed: " + e);
+      } finally {
+        $("run").disabled = false;
+        $("run").textContent = "Run sample appeal";
+      }
+    });
+
+    function render(data) {
+      $("out").hidden = false;
+      const claims = [...data.kept_claims, ...data.stripped_claims];
+      $("claims").innerHTML = claims.map((c) => `
+        <div class="claim ${c.tier}">
+          <div><strong>[${c.kept ? "KEPT" : "STRIPPED"} · tier ${c.tier}]</strong> ${escapeHtml(c.text)}</div>
+          <div class="chip">${escapeHtml(c.chip)}</div>
+        </div>`).join("");
+      $("lead").textContent = data.lead_argument || "(none)";
+      $("letter").textContent = data.final_letter;
+      $("summary").textContent =
+        `${data.kept_claims.length} kept, ${data.stripped_claims.length} stripped. No probability shown anywhere — every chip cites a rule, a case, or a source span.`;
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+  </script>
+</body>
+</html>

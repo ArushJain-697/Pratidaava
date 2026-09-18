@@ -1,0 +1,4 @@
+# Scaffold runtime. The pipeline itself needs only pydantic; fastapi/uvicorn are for the API+UI.
+pydantic>=2.0
+fastapi>=0.110
+uvicorn>=0.29
