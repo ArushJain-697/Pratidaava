@@ -1,12 +1,17 @@
-# Claim-Appeal Agent — Scaffold (walking skeleton)
+# Pratidaava
 
-Locked scope (Bible §12): **one denial type — PED denial after 36 months of continuous
-cover.** One policy, one synthetic denial letter, two seeded precedents. Do not widen
-this without a decision.
+Drafts an appeal letter for a rejected health-insurance claim, then checks every claim in
+the draft before it goes out. A draft line is kept only if it can be traced to the policy
+text, a coverage rule, or a court precedent. Anything else is stripped. The checker makes
+no model call and outputs no probability.
 
-This is the walking skeleton from the build map (tickets #5, #7, and Phase 1), runnable
-**offline, end-to-end, with no AWS and no API keys.** The generative and cloud pieces are
-clean stubs with a `SEAM` comment marking exactly where the real thing plugs in.
+**Status: working prototype (walking skeleton).** It handles one denial type: a
+pre-existing-disease (PED) denial after 36 months of continuous cover, with one policy, one
+synthetic denial letter and two seeded precedents. It runs offline end to end with no AWS
+account and no API keys. The generative and cloud parts are stubs, each marked with a
+`SEAM` comment where the real implementation plugs in.
+
+**Stack:** Python, FastAPI, Pydantic, Cedar policy rules (`policies/coverage.cedar`), plain HTML UI.
 
 ## Run it
 
@@ -79,4 +84,6 @@ tests/test_invariants.py  # enforces the Ground rule
 demo.py                # offline end-to-end demo
 ```
 
-See `bible-final.md` for the WHY and `Claim_Appeal_Build_Map.md` for ticket order.
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how the stages fit together and
+[`docs/buildmap.md`](docs/buildmap.md) for the build order. The `#N` numbers above are
+ticket numbers from the build map.
